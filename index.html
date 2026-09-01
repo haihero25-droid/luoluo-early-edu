@@ -32,6 +32,19 @@
   .theme-banner .t-title{font-size:15px; font-weight:700; color:var(--primary); line-height:1.4;}
   .theme-banner .t-sub{font-size:12px; color:var(--sub); margin-top:2px; line-height:1.5;}
 
+  /* 轻松引导条 */
+  .relax-tip{margin-top:12px; background:#EAF8EE; border-radius:14px; padding:10px 14px;
+            font-size:13px; color:#3D7A46; line-height:1.7;}
+  .relax-tip b{color:#2F6B38;}
+
+  /* 今日小重点 */
+  .focus-card{margin-top:12px; background:linear-gradient(135deg,#FFF0F3,#FFE3E9); border:1.5px solid var(--primary);
+              border-radius:16px; padding:12px 14px; display:flex; align-items:center; gap:10px;}
+  .focus-badge{flex-shrink:0; background:var(--primary); color:#fff; font-size:12px; font-weight:700;
+               padding:4px 10px; border-radius:999px;}
+  .focus-text{font-size:13.5px; color:#B04A66; line-height:1.5;}
+  .focus-text b{font-size:14.5px;}
+
   .date-nav{display:flex; align-items:center; justify-content:space-between; margin:14px 0 4px; gap:8px;}
   .date-nav button{background:var(--card); border:1px solid #F3D8DE; color:var(--primary);
                    border-radius:12px; padding:8px 14px; font-size:13px; cursor:pointer; flex-shrink:0;}
@@ -103,6 +116,11 @@
     <div class="date-chip">🎂 2026-08-27</div>
   </div>
 
+  <!-- 轻松引导语 -->
+  <div class="relax-tip">
+    <b>🌿 轻松一点：</b>这些只是小菜单，不用全部做完。<b>挑 1-2 个</b>，宝宝状态好就玩，困了哭了就停。每天好好吃奶睡觉、有人温柔回应，就是最好的早教。
+  </div>
+
   <!-- 周主题横幅 -->
   <div class="theme-banner">
     <div class="emoji" id="themeEmoji">🤲</div>
@@ -123,9 +141,9 @@
 
   <!-- 统计 -->
   <div class="stats">
-    <div class="stat"><b id="todayCount">0/5</b><span>今日打卡</span></div>
-    <div class="stat"><b id="monthRate">--%</b><span>本月完成率</span></div>
-    <div class="stat"><b id="totalDays">0</b><span>已打卡天数</span></div>
+    <div class="stat"><b id="todayCount">0</b><span>今天陪玩</span></div>
+    <div class="stat"><b id="monthRate">--</b><span>本月玩过天数</span></div>
+    <div class="stat"><b id="totalDays">0</b><span>累计陪玩天数</span></div>
   </div>
 
   <!-- 底部说明 -->
@@ -294,6 +312,20 @@ function render(){
 
   let html = "";
 
+  /* 今日小重点：从今日活动中挑一个（优先大运动/精细动作，未打卡的） */
+  const focusOrder = ["gross_motor","fine_motor","language","cognitive","english"];
+  let focusKey = null;
+  for(const k of focusOrder){
+    if(plan[k] && plan[k].length && !checkin[k]){ focusKey = k; break; }
+  }
+  if(!focusKey) focusKey = "gross_motor";
+  const fm = MODULES.find(m=>m.key===focusKey);
+  const focusAct = plan[focusKey][0];
+  html += `<div class="focus-card">
+    <div class="focus-badge">今日小重点</div>
+    <div class="focus-text"><b>${focusAct.title}</b> · ${fm.name} · 只做这一个就够</div>
+  </div>`;
+
   /* 五模块 */
   MODULES.forEach(m=>{
     const acts = plan[m.key];
@@ -351,21 +383,20 @@ function renderStats(){
   const checkins = d.checkins || {};
   const todayKey = fmtDate(new Date());
   const tc = checkins[todayKey] || {};
-  const doneCount = MODULES.filter(m=>tc[m.key]).length;
-  document.getElementById("todayCount").textContent = doneCount + "/" + MODULES.length;
+  /* 今天玩过（至少打卡1个模块）即算陪玩 */
+  const todayDone = MODULES.some(m=>tc[m.key]) ? 1 : 0;
+  document.getElementById("todayCount").textContent = todayDone;
 
   const now = new Date();
   const prefix = now.getFullYear() + "-" + String(now.getMonth()+1).padStart(2,"0");
-  let days = 0, rateSum = 0;
+  let monthDays = 0;
   Object.keys(checkins).forEach(k=>{
     if(k.startsWith(prefix)){
-      days++;
       const c = checkins[k];
-      const n = MODULES.filter(m=>c[m.key]).length;
-      rateSum += n / MODULES.length;
+      if(MODULES.some(m=>c[m.key])) monthDays++;
     }
   });
-  document.getElementById("monthRate").textContent = days ? Math.round(rateSum/days*100)+"%" : "--%";
+  document.getElementById("monthRate").textContent = monthDays ? monthDays + " 天" : "--";
   document.getElementById("totalDays").textContent = Object.keys(checkins).length;
 }
 
