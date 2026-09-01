@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#FF8FAB">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<title>洛洛的早教工作台</title>
+<style>
+  :root{
+    --bg:#FFF5F7; --card:#FFFFFF; --primary:#FF8FAB; --primary-dark:#E56B8A;
+    --text:#4A3B40; --sub:#A88B93; --green:#6BCB77;
+  }
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent; margin:0; padding:0;}
+  body{font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;
+       background:var(--bg); color:var(--text); padding-bottom:100px;}
+  .container{max-width:640px; margin:0 auto; padding:14px 16px;}
+
+  .top-card{background:linear-gradient(135deg,#FFB6C9,#FF8FAB); border-radius:20px; padding:18px;
+            color:#fff; box-shadow:0 6px 18px rgba(255,143,171,.35); display:flex; align-items:center; gap:14px;}
+  .avatar{width:64px; height:64px; border-radius:50%; background:#fff; display:flex;
+          align-items:center; justify-content:center; font-size:34px; flex-shrink:0; box-shadow:0 2px 8px rgba(0,0,0,.12);}
+  .baby-info{flex:1; min-width:0;}
+  .baby-name{font-size:21px; font-weight:700;}
+  .baby-meta{font-size:13px; opacity:.95; margin-top:4px; line-height:1.5;}
+  .date-chip{font-size:12px; background:rgba(255,255,255,.25); padding:4px 10px; border-radius:999px; white-space:nowrap;}
+
+  .theme-banner{margin-top:12px; background:#fff; border:2px dashed var(--primary); border-radius:16px;
+                padding:10px 16px; display:flex; align-items:center; gap:10px;}
+  .theme-banner .emoji{font-size:26px;}
+  .theme-banner .t-title{font-size:15px; font-weight:700; color:var(--primary); line-height:1.4;}
+  .theme-banner .t-sub{font-size:12px; color:var(--sub); margin-top:2px; line-height:1.5;}
+
+  .date-nav{display:flex; align-items:center; justify-content:space-between; margin:14px 0 4px; gap:8px;}
+  .date-nav button{background:var(--card); border:1px solid #F3D8DE; color:var(--primary);
+                   border-radius:12px; padding:8px 14px; font-size:13px; cursor:pointer; flex-shrink:0;}
+  .date-nav button:active{transform:scale(.95);}
+  .date-nav .cur{font-weight:700; font-size:14px; color:var(--text); text-align:center;}
+
+  .module{margin-top:14px;}
+  .module-head{display:flex; align-items:center; gap:8px; padding:2px 4px 8px;}
+  .module-head .icon{width:32px; height:32px; border-radius:10px; display:flex; align-items:center;
+                     justify-content:center; font-size:17px; color:#fff; flex-shrink:0;}
+  .module-head .name{font-size:16px; font-weight:700;}
+  .module-head .tag{font-size:11px; color:var(--sub); background:#F5EDEF; padding:2px 8px; border-radius:999px;}
+
+  .act-card{background:var(--card); border-radius:14px; padding:12px 14px; margin-bottom:8px;
+            box-shadow:0 2px 8px rgba(74,59,64,.05); display:flex; align-items:flex-start; gap:10px;}
+  .act-card.done{opacity:.72; background:#FDF6F8;}
+  .check{flex-shrink:0; width:24px; height:24px; border-radius:50%; border:2px solid var(--primary);
+         margin-top:2px; display:flex; align-items:center; justify-content:center; cursor:pointer;
+         font-size:14px; color:transparent; transition:.15s;}
+  .check.on{background:var(--primary); color:#fff;}
+  .act-title{font-size:14.5px; font-weight:600; line-height:1.45;}
+  .act-desc{font-size:12.5px; color:var(--sub); margin-top:3px; line-height:1.6;}
+
+  .foods-card{background:linear-gradient(135deg,#FFF6D8,#FFE9B8); border-radius:14px; padding:14px;}
+  .foods-card .food-title{font-size:14.5px; font-weight:700; color:#B8860B; margin-top:8px;}
+  .foods-card .food-title:first-child{margin-top:0;}
+  .foods-card .food-desc{font-size:12.5px; color:#8a6d3b; margin-top:4px; line-height:1.7;}
+
+  .song-card{background:var(--card); border-radius:14px; padding:6px 14px; box-shadow:0 2px 8px rgba(74,59,64,.05);}
+  .song-item{display:flex; align-items:center; gap:12px; padding:10px 0; border-bottom:1px dashed #F0E3E7;}
+  .song-item:last-child{border-bottom:none;}
+  .song-item .s-title{font-size:14px; font-weight:600;}
+  .song-item .s-note{font-size:11px; color:var(--sub); margin-top:2px;}
+  .play-btn{width:38px; height:38px; border-radius:50%; background:var(--primary); border:none; color:#fff;
+            font-size:15px; cursor:pointer; display:flex; align-items:center; justify-content:center; flex-shrink:0;}
+  .play-btn.playing{background:var(--green);}
+  .song-tip{font-size:11px; color:var(--sub); margin-top:8px; padding-bottom:10px; line-height:1.6;}
+
+  .stats{display:flex; gap:10px; margin-top:16px;}
+  .stat{flex:1; background:var(--card); border-radius:14px; padding:10px; text-align:center;
+        box-shadow:0 2px 8px rgba(74,59,64,.05);}
+  .stat b{font-size:20px; color:var(--primary); display:block;}
+  .stat span{font-size:11px; color:var(--sub);}
+
+  .footer{margin-top:16px; background:var(--card); border-radius:14px; padding:14px; font-size:12px; color:var(--sub); line-height:1.9;}
+  .footer b{color:var(--text);}
+
+  .add-home-btn{position:fixed; left:50%; transform:translateX(-50%); bottom:14px; width:calc(100% - 40px); max-width:600px;
+                background:var(--primary); color:#fff; border:none; border-radius:999px; padding:14px; font-size:15px;
+                font-weight:600; box-shadow:0 6px 18px rgba(255,143,171,.4); cursor:pointer; z-index:10;}
+  .add-home-btn:active{transform:translateX(-50%) scale(.97);}
+
+  .toast{position:fixed; left:50%; bottom:100px; transform:translateX(-50%) translateY(20px);
+         background:rgba(74,59,64,.92); color:#fff; font-size:13px; padding:9px 18px; border-radius:999px;
+         opacity:0; pointer-events:none; transition:.25s; z-index:99; max-width:90%; text-align:center;}
+  .toast.show{opacity:1; transform:translateX(-50%) translateY(0);}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- 顶部卡片 -->
+  <div class="top-card">
+    <div class="avatar">👶</div>
+    <div class="baby-info">
+      <div class="baby-name">洛洛的早教工作台</div>
+      <div class="baby-meta"><span id="ageText"></span> · <span id="todayText"></span></div>
+    </div>
+    <div class="date-chip">🎂 2026-08-27</div>
+  </div>
+
+  <!-- 周主题横幅 -->
+  <div class="theme-banner">
+    <div class="emoji" id="themeEmoji">🤲</div>
+    <div>
+      <div class="t-title">第 <span id="weekNum">1</span> 周主题 · <span id="themeName">我的身体</span></div>
+      <div class="t-sub" id="themeSub"></div>
+    </div>
+  </div>
+
+  <!-- 日期切换 -->
+  <div class="date-nav">
+    <button id="prevDay">← 前一天</button>
+    <span class="cur" id="curDate"></span>
+    <button id="nextDay">后一天 →</button>
+  </div>
+
+  <div id="planList"></div>
+
+  <!-- 统计 -->
+  <div class="stats">
+    <div class="stat"><b id="todayCount">0/5</b><span>今日打卡</span></div>
+    <div class="stat"><b id="monthRate">--%</b><span>本月完成率</span></div>
+    <div class="stat"><b id="totalDays">0</b><span>已打卡天数</span></div>
+  </div>
+
+  <!-- 底部说明 -->
+  <div class="footer">
+    <b>🍼 使用小贴士</b><br>
+    ・ 新生儿期活动都很短，宝宝哭闹或困倦就停，不勉强、不催促<br>
+    ・ 俯卧抬头要在宝宝清醒时进行，全程家长在旁看护<br>
+    ・ 宝宝专注时家长不打扰，玩耍代替训练，亲子对话代替教学<br>
+    ・ 所有活动用家里随手可得的物品，一次准备不超过5分钟<br>
+    <b>📲 添加到主屏幕（当APP用）</b><br>
+    <b>iOS Safari：</b>点底部「分享」按钮 →「添加到主屏幕」。<br>
+    <b>Android Chrome：</b>点右上角「⋯」→「添加到主屏幕 / 安装应用」。<br>
+    添加后可离线打开。
+  </div>
+</div>
+
+<button class="add-home-btn" id="addBtn">⭐ 添加到手机主屏幕</button>
+<div class="toast" id="toast"></div>
+
+<script>
+/* ================= 洛洛档案 ================= */
+const BABY = {
+  name: "洛洛",
+  pinyin: "luoluo",
+  birthday: "2026-08-27",
+  emoji: "👶"
+};
+const STORE_KEY = "checkin_" + BABY.pinyin;
+
+const THEMES = {
+  1:{name:"我的身体", emoji:"🤲", sub:"认识小手小脚、感受身体，一切从「身体」开始"},
+  2:{name:"小动物",   emoji:"🐰", sub:"认识可爱的小动物，听听它们的声音"},
+  3:{name:"蔬菜水果", emoji:"🥕", sub:"看看蔬菜水果的颜色和样子，闻闻气味"},
+  4:{name:"天气与四季", emoji:"☀️", sub:"感受阳光、风、雨，认识天气和四季"},
+  5:{name:"交通工具", emoji:"🚗", sub:"看看汽车、火车、飞机，听它们的声音"},
+  6:{name:"颜色形状", emoji:"🌈", sub:"认识颜色和形状，小眼睛亮晶晶"},
+  7:{name:"家庭与家人", emoji:"👨‍👩‍👧", sub:"认识爸爸妈妈和家人，全家在一起"},
+  8:{name:"食物与餐具", emoji:"🍽️", sub:"认识食物和餐具，吃饭真有趣"}
+};
+
+/* ================= 活动库（0-3月新生儿期） ================= */
+/* 每个模块多个活动，按日期交替选取，一周内尽量不重复 */
+const ACTS = {
+  fine_motor: [
+    {title:"揉揉小手小脚", desc:"洗完澡后轻柔按摩宝宝的手指脚趾，边揉边温柔数“一二三”，帮宝宝感受身体末端。"},
+    {title:"抓家长的手指", desc:"把手指放进宝宝手心让他自然握住，轻轻拉一拉，感受抓握的力量。"},
+    {title:"握握小摇铃", desc:"把轻巧的摇铃放在宝宝手里，让他握着晃动，听一听铃铛的声音。"}
+  ],
+  language: [
+    {title:"面对面咿呀对话", desc:"把宝宝抱到眼前20-30cm，看着他的眼睛温柔说话，等宝宝发出声音再回应他。"},
+    {title:"模仿宝宝发音", desc:"宝宝发出“啊”“哦”时，家长笑着模仿同样的声音，一来一回就是第一次“对话”。"},
+    {title:"指物命名", desc:"抱着宝宝指认身边熟悉的东西：“这是灯，这是窗帘”，声音轻柔缓慢。"}
+  ],
+  cognitive: [
+    {title:"人脸对视游戏", desc:"凑近宝宝的脸慢慢移动，让他追着看妈妈的眼睛和微笑，人脸是宝宝最爱看的“玩具”。"},
+    {title:"黑白卡追视", desc:"用黑白卡在眼前20cm处静态展示几秒，再缓缓移动让宝宝追视（非闪卡，不快速切换）。"},
+    {title:"追视移动玩具", desc:"拿一个颜色鲜艳的小玩具，在宝宝眼前慢慢左右移动，让他视线跟随。"}
+  ],
+  english: [
+    {title:"轻声唱 Hello Song", desc:"抱着宝宝轻声哼唱 “Hello hello hello, how are you”，家长做动作给宝宝看，感受英语韵律。"},
+    {title:"轻声唱 Twinkle Twinkle", desc:"睡前轻声唱 “Twinkle twinkle little star”，节奏舒缓，是最好的英文摇篮曲。"}
+  ],
+  gross_motor: [
+    {title:"俯卧抬头（短时多次）", desc:"宝宝清醒时让他趴一小会儿，用声音或玩具吸引抬头，每次1-2分钟、一天3-5次，全程看护。"},
+    {title:"飞机抱", desc:"托住宝宝胸腹轻轻“起飞”晃一晃，锻炼颈部力量，宝宝会很开心。"},
+    {title:"抚触操", desc:"吃完奶1小时后，光着上身做全身抚触，边做边轻声说部位名称。"}
+  ]
+};
+const FOODS = [
+  {title:"🍼 纯母乳 / 配方奶", desc:"本月无需添加辅食，按需喂养，奶后记得拍嗝。母乳是6个月前最完美的食物。"},
+  {title:"☀️ 补充维生素D", desc:"按医生建议每天补充维生素D（通常400IU/天），帮助钙吸收。"},
+  {title:"💧 奶后护理", desc:"奶后竖抱拍嗝，注意口腔和脐带护理，观察大便颜色和频率。"}
+];
+
+/* ================= 工具函数 ================= */
+function dayDiff(fromDateStr, toDateStr){
+  return Math.round((new Date(toDateStr+"T12:00:00") - new Date(fromDateStr+"T12:00:00"))/86400000);
+}
+function fmtDate(d){
+  return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
+}
+function weekdayCN(dateKey){
+  return ["周日","周一","周二","周三","周四","周五","周六"][new Date(dateKey+"T12:00:00").getDay()];
+}
+function ageText(baseDateKey){
+  const days = dayDiff(BABY.birthday, baseDateKey);
+  if(days < 0) return "尚未出生";
+  const b = new Date(BABY.birthday+"T12:00:00");
+  const t = new Date(baseDateKey+"T12:00:00");
+  let months = (t.getFullYear()-b.getFullYear())*12 + (t.getMonth()-b.getMonth());
+  if(t.getDate() < b.getDate()) months--;
+  if(months < 1) return "出生 " + days + " 天";
+  return months + " 个月";
+}
+function weekIndexOf(baseDateKey){
+  const d = dayDiff(BABY.birthday, baseDateKey);
+  return Math.floor(d/7) + 1;
+}
+
+/* ================= 每日计划生成 ================= */
+function getThemeIdx(dateKey){
+  const w = weekIndexOf(dateKey);
+  return ((w-1) % 8) + 1;
+}
+function getPlan(dateKey){
+  const themeIdx = getThemeIdx(dateKey);
+  const theme = THEMES[themeIdx];
+  /* 按日期哈希交替选取活动，同一活动一周内不重复 */
+  const seed = dayDiff(BABY.birthday, dateKey);
+  const pick = (arr, salt) => arr[(seed + salt) % arr.length];
+  return {
+    theme,
+    fine_motor: [pick(ACTS.fine_motor, 0)],
+    language:   [pick(ACTS.language, 1)],
+    cognitive:  [pick(ACTS.cognitive, 2)],
+    english:    ACTS.english,  /* 两首SSS歌单固定 */
+    gross_motor:[pick(ACTS.gross_motor, 3)],
+    foods:      FOODS
+  };
+}
+
+/* ================= 打卡数据 ================= */
+function loadData(){
+  try{ return JSON.parse(localStorage.getItem(STORE_KEY)) || {}; }
+  catch(e){ return {}; }
+}
+function saveData(d){ localStorage.setItem(STORE_KEY, JSON.stringify(d)); }
+function getCheckin(dateKey){
+  const d = loadData();
+  return (d.checkins && d.checkins[dateKey]) || {};
+}
+function toggleCheck(dateKey, key){
+  const d = loadData();
+  d.babyName = BABY.name;
+  d.birthday = BABY.birthday;
+  if(!d.checkins) d.checkins = {};
+  const c = d.checkins[dateKey] || {};
+  c[key] = !c[key];
+  d.checkins[dateKey] = c;
+  saveData(d);
+  render();
+}
+
+/* ================= 渲染 ================= */
+let currentDate = new Date();
+const MODULES = [
+  {key:"fine_motor", name:"精细动作", icon:"🖐️", color:"#FF9F68"},
+  {key:"language",   name:"语言启蒙", icon:"💬", color:"#7FB5FF"},
+  {key:"cognitive",  name:"认知启蒙", icon:"🧠", color:"#A78BFA"},
+  {key:"english",    name:"英文启蒙", icon:"🔤", color:"#F472B6"},
+  {key:"gross_motor",name:"大运动+感统", icon:"🏃", color:"#4ADE80"}
+];
+
+function render(){
+  const dateKey = fmtDate(currentDate);
+  const plan = getPlan(dateKey);
+  const checkin = getCheckin(dateKey);
+
+  document.getElementById("ageText").textContent = ageText(dateKey) + " · " + BABY.name;
+  document.getElementById("todayText").textContent = weekdayCN(dateKey);
+  document.getElementById("curDate").textContent = dateKey + " " + weekdayCN(dateKey);
+  document.getElementById("themeEmoji").textContent = plan.theme.emoji;
+  document.getElementById("themeName").textContent = plan.theme.name;
+  document.getElementById("weekNum").textContent = weekIndexOf(dateKey);
+  document.getElementById("themeSub").textContent = plan.theme.sub;
+
+  let html = "";
+
+  /* 五模块 */
+  MODULES.forEach(m=>{
+    const acts = plan[m.key];
+    html += `<div class="module">
+      <div class="module-head"><div class="icon" style="background:${m.color}">${m.icon}</div>
+      <div class="name">${m.name}</div><div class="tag">${acts.length}个活动</div></div>`;
+    acts.forEach(a=>{
+      const done = !!checkin[m.key];
+      html += `<div class="act-card ${done?'done':''}">
+        <div class="check ${done?'on':''}" data-key="${m.key}">${done?'✓':''}</div>
+        <div style="flex:1"><div class="act-title">${a.title}</div><div class="act-desc">${a.desc}</div></div>
+      </div>`;
+    });
+    html += `</div>`;
+  });
+
+  /* 辅食 */
+  html += `<div class="module"><div class="module-head"><div class="icon" style="background:#F4A261">🍚</div>
+    <div class="name">辅食建议</div><div class="tag">按月龄适配</div></div>
+    <div class="foods-card">`;
+  plan.foods.forEach(f=>{
+    html += `<div class="food-title">${f.title}</div><div class="food-desc">${f.desc}</div>`;
+  });
+  html += `</div></div>`;
+
+  /* SSS 儿歌 */
+  html += `<div class="module"><div class="module-head"><div class="icon" style="background:#FF6B6B">🎵</div>
+    <div class="name">SSS儿歌 · 英文启蒙</div><div class="tag">每天1-2首</div></div>
+    <div class="song-card">`;
+  SONG_LIST.forEach(s=>{
+    html += `<div class="song-item">
+      <button class="play-btn ${playing===s.id?'playing':''}" data-song="${s.id}">${playing===s.id?'⏸':'▶'}</button>
+      <div><div class="s-title">${s.name}</div><div class="s-note">${s.note}</div></div>
+    </div>`;
+  });
+  html += `<div class="song-tip">💡 当前为内置旋律（离线可用）。如需真人 SSS 音频，可下载 mp3 后自行替换代码中的旋律数组。</div>`;
+  html += `</div></div>`;
+
+  document.getElementById("planList").innerHTML = html;
+
+  /* 打卡 */
+  document.querySelectorAll(".check").forEach(el=>{
+    el.addEventListener("click", ()=> toggleCheck(dateKey, el.dataset.key));
+  });
+  /* 播放 */
+  document.querySelectorAll(".play-btn").forEach(el=>{
+    el.addEventListener("click", ()=> toggleSong(el.dataset.song));
+  });
+
+  renderStats();
+}
+
+function renderStats(){
+  const d = loadData();
+  const checkins = d.checkins || {};
+  const todayKey = fmtDate(new Date());
+  const tc = checkins[todayKey] || {};
+  const doneCount = MODULES.filter(m=>tc[m.key]).length;
+  document.getElementById("todayCount").textContent = doneCount + "/" + MODULES.length;
+
+  const now = new Date();
+  const prefix = now.getFullYear() + "-" + String(now.getMonth()+1).padStart(2,"0");
+  let days = 0, rateSum = 0;
+  Object.keys(checkins).forEach(k=>{
+    if(k.startsWith(prefix)){
+      days++;
+      const c = checkins[k];
+      const n = MODULES.filter(m=>c[m.key]).length;
+      rateSum += n / MODULES.length;
+    }
+  });
+  document.getElementById("monthRate").textContent = days ? Math.round(rateSum/days*100)+"%" : "--%";
+  document.getElementById("totalDays").textContent = Object.keys(checkins).length;
+}
+
+/* ================= SSS 播放器（Web Audio 合成旋律） ================= */
+const SONG_LIST = [
+  {id:"twinkle", name:"Twinkle Twinkle Little Star", note:"温柔摇篮曲 · 睡前英文启蒙"},
+  {id:"hello",   name:"Hello Song",                   note:"打招呼儿歌，轻声哼唱"},
+  {id:"hsk",     name:"Head Shoulders Knees & Toes",  note:"身体部位歌，长大一点可加动作"}
+];
+const MELODY = {
+  twinkle: [ // Twinkle Twinkle Little Star（C大调）
+    [261.63,0,0.7],[261.63,0.85,0.7],[392.00,1.7,0.7],[392.00,2.55,0.7],
+    [440.00,3.4,0.7],[440.00,4.25,0.7],[392.00,5.1,1.5],
+    [349.23,6.8,0.7],[349.23,7.65,0.7],[329.63,8.5,0.7],[329.63,9.35,0.7],
+    [293.66,10.2,0.7],[293.66,11.05,0.7],[261.63,11.9,1.5]
+  ],
+  hello: [ // Hello Song
+    [392.00,0,0.28],[392.00,0.35,0.28],[392.00,0.7,0.28],
+    [329.63,1.05,0.55],[349.23,1.65,0.55],[392.00,2.25,0.85],
+    [392.00,3.2,0.28],[392.00,3.55,0.28],[392.00,3.9,0.28],
+    [329.63,4.25,0.55],[349.23,4.85,0.55],[392.00,5.45,0.85]
+  ],
+  hsk: [ // Head Shoulders Knees & Toes
+    [392.00,0,0.35],[440.00,0.45,0.35],[493.88,0.9,0.35],[523.25,1.35,0.35],[587.33,1.8,0.55],
+    [523.25,2.5,0.35],[493.88,2.95,0.35],[440.00,3.4,0.35],
+    [392.00,3.85,0.35],[392.00,4.3,0.35],[440.00,4.75,0.55]
+  ]
+};
+let playing = null;
+let audioCtx = null;
+let melodyTimer = null;
+
+function note(freq, start, dur, vol){
+  const t = audioCtx.currentTime + start;
+  const osc = audioCtx.createOscillator();
+  const g = audioCtx.createGain();
+  osc.type = "sine";
+  osc.frequency.value = freq;
+  g.gain.setValueAtTime(0.0001, t);
+  g.gain.exponentialRampToValueAtTime(vol||0.16, t+0.04);
+  g.gain.exponentialRampToValueAtTime(0.0001, t+dur);
+  osc.connect(g); g.connect(audioCtx.destination);
+  osc.start(t); osc.stop(t+dur+0.05);
+}
+
+function stopSong(){
+  playing = null;
+  if(melodyTimer) clearTimeout(melodyTimer);
+  melodyTimer = null;
+  render();
+}
+function toggleSong(id){
+  if(playing === id){ stopSong(); return; }
+  if(!audioCtx){ audioCtx = new (window.AudioContext||window.webkitAudioContext)(); }
+  stopSong();  /* 先停旧的（会 render 一次） */
+  playing = id;
+  if(audioCtx.state === "suspended") audioCtx.resume();
+  const notes = MELODY[id] || [];
+  let i = 0;
+  const playLoop = ()=>{
+    if(playing !== id) return;
+    if(i >= notes.length) i = 0;
+    const n = notes[i];
+    note(n[0], 0, n[2]||0.5);
+    melodyTimer = setTimeout(playLoop, (n[2]||0.5)*1000 + 60);
+    i++;
+  };
+  playLoop();
+  render();
+}
+window.addEventListener("beforeunload", ()=>{ playing=null; if(melodyTimer) clearTimeout(melodyTimer); });
+
+/* ================= 日期切换 ================= */
+document.getElementById("prevDay").addEventListener("click", ()=>{
+  currentDate.setDate(currentDate.getDate()-1);
+  render();
+});
+document.getElementById("nextDay").addEventListener("click", ()=>{
+  currentDate.setDate(currentDate.getDate()+1);
+  render();
+});
+
+/* ================= 提示条 & 安装引导 ================= */
+let toastTimer = null;
+function toast(msg){
+  const t = document.getElementById("toast");
+  t.textContent = msg;
+  t.classList.add("show");
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(()=>t.classList.remove("show"), 2600);
+}
+document.getElementById("addBtn").addEventListener("click", ()=>{
+  const ua = navigator.userAgent;
+  if(/iphone|ipad|ipod/i.test(ua)){
+    toast("在 Safari 中打开：点底部「分享」→「添加到主屏幕」");
+  } else if(/android/i.test(ua)){
+    toast("在 Chrome 中打开：点右上角「⋯」→「添加到主屏幕」");
+  } else {
+    toast("请用手机浏览器打开此页面后再安装");
+  }
+});
+
+/* ================= PWA manifest（内联） ================= */
+const iconSvg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="48" fill="#FF8FAB"/><text x="50" y="68" font-size="54" text-anchor="middle">👶</text></svg>';
+const manifest = {
+  name: "洛洛的早教工作台",
+  short_name: "洛洛早教",
+  start_url: ".",
+  display: "standalone",
+  background_color: "#FFF0F7",
+  theme_color: "#FF8FAB",
+  icons: [{src:"data:image/svg+xml,"+encodeURIComponent(iconSvg), sizes:"192x192", type:"image/svg+xml"}]
+};
+const linkManifest = document.createElement("link");
+linkManifest.rel = "manifest";
+linkManifest.href = URL.createObjectURL(new Blob([JSON.stringify(manifest)],{type:"application/json"}));
+document.head.appendChild(linkManifest);
+
+/* Service Worker：部署到 https（GitHub Pages）后自动启用，本地 file:// 自动降级为普通页面 */
+if("serviceWorker" in navigator && location.protocol === "https:"){
+  navigator.serviceWorker.register(location.href.split("#")[0].replace(/[^/]*$/,"") + "sw.js").catch(()=>{});
+}
+
+/* ================= 初始化 ================= */
+render();
+</script>
+</body>
+</html>
