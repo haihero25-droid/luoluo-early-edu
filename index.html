@@ -190,26 +190,36 @@ const ACTS = {
   fine_motor: [
     {title:"揉揉小手小脚", desc:"洗完澡后轻柔按摩宝宝的手指脚趾，边揉边温柔数“一二三”，帮宝宝感受身体末端。"},
     {title:"抓家长的手指", desc:"把手指放进宝宝手心让他自然握住，轻轻拉一拉，感受抓握的力量。"},
-    {title:"握握小摇铃", desc:"把轻巧的摇铃放在宝宝手里，让他握着晃动，听一听铃铛的声音。"}
+    {title:"握握小摇铃", desc:"把轻巧的摇铃放在宝宝手里，让他握着晃动，听一听铃铛的声音。"},
+    {title:"指尖碰指尖", desc:"用你的食指轻点宝宝的每根小手指，从大拇指到小拇指，慢慢点、轻轻说。"},
+    {title:"摸不同质感布", desc:"把柔软的毛巾、丝巾、棉布依次轻轻碰宝宝的脚心和小手，让他感受不同触感。"}
   ],
   language: [
     {title:"面对面咿呀对话", desc:"把宝宝抱到眼前20-30cm，看着他的眼睛温柔说话，等宝宝发出声音再回应他。"},
     {title:"模仿宝宝发音", desc:"宝宝发出“啊”“哦”时，家长笑着模仿同样的声音，一来一回就是第一次“对话”。"},
-    {title:"指物命名", desc:"抱着宝宝指认身边熟悉的东西：“这是灯，这是窗帘”，声音轻柔缓慢。"}
+    {title:"指物命名", desc:"抱着宝宝指认身边熟悉的东西：“这是灯，这是窗帘”，声音轻柔缓慢。"},
+    {title:"温柔哼儿歌", desc:"轻声哼一首你熟悉的摇篮曲，抱着宝宝轻轻晃动，韵律感就这样走进心里。"},
+    {title:"叫名字回应", desc:"靠近宝宝轻声叫“洛洛”，看他会不会转过头来找你，找到了就温柔地笑一笑。"}
   ],
   cognitive: [
     {title:"人脸对视游戏", desc:"凑近宝宝的脸慢慢移动，让他追着看妈妈的眼睛和微笑，人脸是宝宝最爱看的“玩具”。"},
     {title:"黑白卡追视", desc:"用黑白卡在眼前20cm处静态展示几秒，再缓缓移动让宝宝追视（非闪卡，不快速切换）。"},
-    {title:"追视移动玩具", desc:"拿一个颜色鲜艳的小玩具，在宝宝眼前慢慢左右移动，让他视线跟随。"}
+    {title:"追视移动玩具", desc:"拿一个颜色鲜艳的小玩具，在宝宝眼前慢慢左右移动，让他视线跟随。"},
+    {title:"吊铃看一会", desc:"在宝宝上方挂一个黑白或鲜艳的吊铃，让他躺着看、伸手够，锻炼视觉与手眼。"},
+    {title:"照镜子认自己", desc:"抱着宝宝照镜子，让他看看镜子里的自己，摸摸镜面，初识“这就是我”。"}
   ],
   english: [
     {title:"轻声唱 Hello Song", desc:"抱着宝宝轻声哼唱 “Hello hello hello, how are you”，家长做动作给宝宝看，感受英语韵律。"},
-    {title:"轻声唱 Twinkle Twinkle", desc:"睡前轻声唱 “Twinkle twinkle little star”，节奏舒缓，是最好的英文摇篮曲。"}
+    {title:"轻声唱 Twinkle Twinkle", desc:"睡前轻声唱 “Twinkle twinkle little star”，节奏舒缓，是最好的英文摇篮曲。"},
+    {title:"轻声唱 Rain Rain Go Away", desc:"轻声哼唱 “Rain rain go away”，节奏简单，适合抱着宝宝轻晃。"},
+    {title:"轻声唱 The Wheels on the Bus", desc:"哼唱 “The wheels on the bus go round and round”，配合轻摇动作，感受英语节奏。"}
   ],
   gross_motor: [
     {title:"俯卧抬头（短时多次）", desc:"宝宝清醒时让他趴一小会儿，用声音或玩具吸引抬头，每次1-2分钟、一天3-5次，全程看护。"},
     {title:"飞机抱", desc:"托住宝宝胸腹轻轻“起飞”晃一晃，锻炼颈部力量，宝宝会很开心。"},
-    {title:"抚触操", desc:"吃完奶1小时后，光着上身做全身抚触，边做边轻声说部位名称。"}
+    {title:"抚触操", desc:"吃完奶1小时后，光着上身做全身抚触，边做边轻声说部位名称。"},
+    {title:"蹬蹬小腿", desc:"宝宝平躺时轻轻握住他的小腿做“蹬车”动作，每天几次，促进下肢大肌肉发育。"},
+    {title:"竖抱看世界", desc:"短时间竖抱宝宝，让他靠着你肩头看看四周，视野更丰富，头颈得到锻炼。"}
   ]
 };
 const FOODS = [
@@ -254,12 +264,18 @@ function getPlan(dateKey){
   /* 按日期哈希交替选取活动，同一活动一周内不重复 */
   const seed = dayDiff(BABY.birthday, dateKey);
   const pick = (arr, salt) => arr[(seed + salt) % arr.length];
+  /* 英文每天选2首（符合“每天1-2首”，轻松不贪多） */
+  const engPick = ()=>{
+    const start = seed % ACTS.english.length;
+    const two = [ACTS.english[start], ACTS.english[(start+1) % ACTS.english.length]];
+    return two;
+  };
   return {
     theme,
     fine_motor: [pick(ACTS.fine_motor, 0)],
     language:   [pick(ACTS.language, 1)],
     cognitive:  [pick(ACTS.cognitive, 2)],
-    english:    ACTS.english,  /* 两首SSS歌单固定 */
+    english:    engPick(),
     gross_motor:[pick(ACTS.gross_motor, 3)],
     foods:      FOODS
   };
